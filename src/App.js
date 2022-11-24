@@ -1,19 +1,37 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {AiOutlinePlus} from "react-icons/ai"
 import Todo from "./components/Todo";
+import { db } from './firebase'
+import { query, collection, onSnapshot } from "firebase/firestore"
 
 const style = {
 	bg: `h-screen w-screen p-4 bg-gradient-to-r from-[#6681ad] to-[#6f66ad]`,
 	container: `bg-slate-100 w-full m-auto rounded-md shadow-xl text-2xl p-4`,
 	heading: `text-4xl font-bold text-center text-gray-800 p-2`,
-	form : `flex justify-between p-4`,
+	form: `flex justify-between p-4`,
 	input: `border p-2 w-full text-xl`,
 	button: `border p-4 ml-2 bg-purple-500 text-slate-100`,
 	count: `text-center p-2`,
 }
 
 function App() {
-	const [todos, setTodos] = useState(['Learn JS', 'Learn React'])
+	const [todos, setTodos] = useState([])
+
+	// Create todos
+	// Read todos from firebase
+	useEffect(() => {
+		const path = query(collection(db, 'todos'))
+		const unsubscribe = onSnapshot(path, (querySnapshot) => {
+			let todosArr = []
+			querySnapshot.forEach((doc) => {
+				todosArr.push({...doc.data(), id: doc.id})
+			});
+			setTodos(todosArr)
+		})
+		return () => unsubscribe
+	}, [])
+	// Update todos in firebase
+	// Delete todos
 
 	return (
 		<div className={style.bg}>
@@ -29,7 +47,7 @@ function App() {
 				</form>
 				<ul>
 					{todos.map((todo, index) => (
-						<Todo key={index} todo={todo} />
+						<Todo key={index} todo={todo.text}/>
 					))}
 				</ul>
 				<p className={style.count}>You have 2 todos</p>
