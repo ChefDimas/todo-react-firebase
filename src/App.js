@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {AiOutlinePlus} from "react-icons/ai"
 import Todo from "./components/Todo";
 import {db} from './firebase'
-import {query, collection, onSnapshot, updateDoc, doc, addDoc} from "firebase/firestore"
+import {query, collection, onSnapshot, updateDoc, doc, addDoc, deleteDoc} from "firebase/firestore"
 
 const style = {
 	bg: `h-screen w-screen p-4 bg-gradient-to-r from-[#6681ad] to-[#6f66ad]`,
@@ -53,6 +53,9 @@ function App() {
 	}
 
 	// Delete todos
+	const toggleDelete = async (id) => {
+		await deleteDoc(doc(db, 'todos', id))
+	}
 
 	return (
 		<div className={style.bg}>
@@ -73,7 +76,12 @@ function App() {
 				</form>
 				<ul>
 					{todos.map((todo, index) => (
-						<Todo key={index} todo={todo} toggleComplete={toggleComplete}/>
+						<Todo
+							key={index}
+							todo={todo}
+							toggleComplete={toggleComplete}
+							toggleDelete={toggleDelete}
+						/>
 					))}
 				</ul>
 				{todos.length < 1 ? null :
