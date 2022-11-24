@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import {AiOutlinePlus} from "react-icons/ai"
 import Todo from "./components/Todo";
 import {db} from './firebase'
-import {query, collection, onSnapshot, updateDoc, doc} from "firebase/firestore"
+import {query, collection, onSnapshot, updateDoc, doc, addDoc} from "firebase/firestore"
 
 const style = {
 	bg: `h-screen w-screen p-4 bg-gradient-to-r from-[#6681ad] to-[#6f66ad]`,
@@ -16,8 +16,22 @@ const style = {
 
 function App() {
 	const [todos, setTodos] = useState([])
+	const [input, setInput] = useState('')
 
 	// Create todos
+	const createTodo = async (e) => {
+		e.preventDefault(e)
+		if (input === '') {
+			alert('Please enter a valid todo!')
+			return
+		}
+		await addDoc(collection(db, 'todos'), {
+			text: input,
+			completed: false,
+		})
+		setInput('')
+	}
+
 	// Read todos from firebase
 	useEffect(() => {
 		const q = query(collection(db, 'todos'));
@@ -44,17 +58,22 @@ function App() {
 		<div className={style.bg}>
 			<div className={style.container}>
 				<h3 className={style.heading}>To do app</h3>
-				<form className={style.form}>
+				<form
+					onSubmit={createTodo}
+					className={style.form}
+				>
 					<input className={style.input}
 					       type="text"
-					       placeholder="Add Todo"/>
+					       placeholder="Add Todo"
+					       value={input}
+					       onChange={(e) => setInput(e.target.value)}/>
 					<button className={style.button}>
 						<AiOutlinePlus size={30}/>
 					</button>
 				</form>
 				<ul>
 					{todos.map((todo, index) => (
-						<Todo key={index} todo={todo} toggleComplete={toggleComplete} />
+						<Todo key={index} todo={todo} toggleComplete={toggleComplete}/>
 					))}
 				</ul>
 				<p className={style.count}>You have 2 todos</p>
