@@ -32,6 +32,11 @@ function App() {
 	}, []);
 
 	// Update todos in firebase
+	const toggleComplete = async (todo) => {
+		await updateDoc(doc(db, 'todos', todo.id), {
+			completed: !todo.completed
+		})
+	}
 
 	// Delete todos
 
@@ -49,7 +54,7 @@ function App() {
 				</form>
 				<ul>
 					{todos.map((todo, index) => (
-						<Todo key={index} todo={todo}/>
+						<Todo key={index} todo={todo} toggleComplete={toggleComplete} />
 					))}
 				</ul>
 				<p className={style.count}>You have 2 todos</p>
